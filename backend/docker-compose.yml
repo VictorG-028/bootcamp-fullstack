@@ -1,0 +1,72 @@
+version: '3.2'
+services:
+
+  rabbitmq_sysmap_bootcamp:
+    build:
+      context: ./rabbitmq
+    image: victorg028/rabbitmq_sysmap_bootcamp:latest
+    ports:
+      - 15672:15672
+      - 5672:5672
+    container_name: rabbitmq_sysmap_bootcamp
+    networks:
+      - sysmap_bootcamp_net
+
+  postgres_sysmap_bootcamp:
+    build:
+      context: ./postgres
+    image: victorg028/postgres_sysmap_bootcamp:latest
+    ports:
+      - 5432:5432
+    container_name: postgres_sysmap_bootcamp
+    networks:
+      - sysmap_bootcamp_net
+
+  sysmap_bootcamp_user_api:
+    build:
+      context: ./app-user-api
+      dockerfile: ./Dockerfile
+    image: victorg028/sysmap_bootcamp_user_api:latest
+    ports:
+      - 8081:8081
+    container_name: sysmap_bootcamp_user_api
+    environment:
+      - RABBIT_HOST=rabbitmq_sysmap_bootcamp
+      - RABBIT_USERNAME=guest
+      - RABBIT_PASSWORD=guest
+      - POSTGRES_URL=postgres_sysmap_bootcamp
+      - POSTGRES_USER=sysmap_bootcamp
+      - POSTGRES_PASSWORD=sysmap_bootcamp_pass
+      - POSTGRES_DATABASE=sysmap_bootcamp
+    depends_on:
+      - postgres_sysmap_bootcamp
+      - rabbitmq_sysmap_bootcamp
+    networks:
+      - sysmap_bootcamp_net
+
+  sysmap_bootcamp_integration_api:
+    build:
+      context: ./app-integration-api
+      dockerfile: ./Dockerfile
+    image: victorg028/sysmap_bootcamp_integration_api:latest
+    ports:
+      - 8082:8082
+    container_name: sysmap_bootcamp_integration_api
+    environment:
+      - RABBIT_HOST=rabbitmq_sysmap_bootcamp
+      - RABBIT_USERNAME=guest
+      - RABBIT_PASSWORD=guest
+      - POSTGRES_URL=postgres_sysmap_bootcamp
+      - POSTGRES_USER=sysmap_bootcamp
+      - POSTGRES_PASSWORD=sysmap_bootcamp_pass
+      - POSTGRES_DATABASE=sysmap_bootcamp
+    depends_on:
+      - postgres_sysmap_bootcamp
+      - rabbitmq_sysmap_bootcamp
+    networks:
+      - sysmap_bootcamp_net
+
+
+networks:
+  sysmap_bootcamp_net:
+    driver: "bridge"

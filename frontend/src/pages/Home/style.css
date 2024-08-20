@@ -1,0 +1,7 @@
+.override-overflow {
+  /* shadcn carousel automaticaly wrapps carousel in a overflow-hidden div.
+   * This should override this style.
+   */
+  /* overflow: visible !important; */
+  overflow-y: visible !important;
+}
